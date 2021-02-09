@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -15,6 +16,7 @@ var (
 	GitRevision = "unknown"
 )
 
+// TODO: lame handling of quotes, make sure \" is properly interpreted too eventually
 func split(s string) []string {
 	sq := false
 	dq := false
@@ -32,13 +34,13 @@ func split(s string) []string {
 	return a
 }
 
-func quoteed(s string) bool {
+func quoted(s string) bool {
 	return (s[0] == '\'' && s[len(s)-1] == '\'') || (s[0] == '"' && s[len(s)-1] == '"')
 }
 
 func unquote(a *[]string) {
 	for i, s := range *a {
-		if len(s) > 0 && quoteed(s) {
+		if len(s) > 0 && quoted(s) {
 			(*a)[i] = s[1 : len(s)-1]
 		}
 	}
@@ -53,7 +55,7 @@ func execute(command string, args []string) error {
 
 func main() {
 	app := &cli.App{
-		Name:  "zk-ex (" + GitRevision + ")",
+		Name:  fmt.Sprintf("zk-ex (%s)", GitRevision),
 		Usage: "Acquire an exclusive lock via zookeeper",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
